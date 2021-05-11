@@ -3,13 +3,31 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const bodyParser = require("body-parser");
 
+app.use(bodyParser.urlencoded({extended: true}));
+
+// EJS SET AS THE VIEW ENGINE
 app.set("view engine", "ejs");
 
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+
+// GENERATE A RANDOM SHORTURL:
+function generateRandomString() {
+
+  const randomChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
+  let result = "";
+
+  for (let i = 0; i < 6; i++){
+    result += randomChars[Math.floor(Math.random() * randomChars.length)];
+  }
+
+  return result;
+
 };
 
 // ---------- ROUTES ---------- //
@@ -47,3 +65,8 @@ app.get("/urls/:shortURL", function(req, res) {
   res.render("urls_show", {longURL: longURL, shortURL: shortURL});
 });
 
+// redirect after form submission
+app.get("/u/:shortURL", function(req, res) {
+  let shortURL = req.params.shortURL;
+  res.redirect(urlDatabase[shortURL]);
+});
