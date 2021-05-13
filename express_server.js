@@ -70,3 +70,21 @@ app.get("/u/:shortURL", function(req, res) {
   let shortURL = req.params.shortURL;
   res.redirect(urlDatabase[shortURL]);
 });
+
+
+app.post("/urls", (req, res) => {
+  // console.log(req.body);  // Log the POST request body to the console
+  // res.send("Ok"); 
+
+  const generateShortURL = generateRandomString();
+  urlDatabase[generateShortURL] = req.body.longURL;
+  res.redirect(`/urls/${generateShortURL}`);
+});
+
+// deleting urls
+app.post("/urls/:shortURL/delete", (req, res) => {
+  let short = req.params.shortURL;
+  // console.log(short);
+  delete urlDatabase[short];
+  res.redirect("/urls");
+});
