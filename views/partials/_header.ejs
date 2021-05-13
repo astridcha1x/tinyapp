@@ -1,26 +1,28 @@
 <header>
   <nav class="navbar navbar-expand-md navbar-dark bg-success">
     <a class="navbar-brand" href="/urls">TinyApp</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+      aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-      <!-- IF LOGGED IN -->
+        <!-- IF LOGGED IN -->
         <% if (user) {%>
           <form class="form-inline" method="POST" action="/logout" style="margin-left: 750px">
             <h5 class="nav-item nav-link inline" href="/urls/new" style="position: inline">Hello, <%=user.email%>!</h5>
             <button type="submit" class="btn btn-primary inline">Logout</button>
           </form>
-      <!-- IF LOGGED OUT -->
-      <%} else {%> <!-- gary if you're reading this i'm sorry -->
-      <form class="form-inline" method="POST" action="/login">
-        <a class="nav-item nav-link" style="padding: 20px;" href="/register">Register</a>
-        <a class="nav-item nav-link" style="padding: 20px;" href="/login">Login</a>
-      </form>
-        <%}%>
+          <!-- IF LOGGED OUT -->
+          <%} else {%>
+            <!-- gary if you're reading this i'm sorry -->
+            <form class="form-inline" method="POST" action="/login">
+              <a class="nav-item nav-link" style="padding: 20px;" href="/register">Register</a>
+              <a class="nav-item nav-link" style="padding: 20px;" href="/login">Login</a>
+            </form>
+            <%}%>
       </div>
     </div>
   </nav>

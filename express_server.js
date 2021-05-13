@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
-const cookieParset = require("cookie-parser");
+const cookieParser = require("cookie-parser");
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -86,7 +86,7 @@ app.get("/urls.json", (req, res) => {
 // URL PAGE INDEX WITH THE URLS INPUTTED // 
 app.get("/urls", (req, res) => {
   let cookie = req.cookies;
-  const templateVars = { urls: urlDatabase, username: req.cookies[cookie.user_id] };
+  const templateVars = { urls: urlDatabase, user: req.cookies[cookie.user_id] };
   res.render("urls_index", templateVars);
 });
 
@@ -143,21 +143,21 @@ app.get("/login", (req, res) => {
 })
 
 app.post("/login", function(req, res) {
-  res.cookie("username", req.body.username);
+  res.cookie("user", req.body.user);
   res.redirect("/urls");
-  console.log(req.cookies["username"]);
+  console.log(req.cookies[user_id]);
 });
 
 // LOGOUT //
 app.post("/logout", function(req, res) {
-  res.clearCookie("username", req.body.username);
+  res.clearCookie("user", req.body.user);
   res.redirect("/urls");
 });
 
 // REGISTER //
 app.get("/register", (req, res) => {
   let cookie = req.cookies;
-  res.render("register", { user: user[cookie.user_id] });
+  res.render("register", { user: users[cookie.user_id] });
 });
 
 app.post("/register", function(req, res) {
