@@ -18,8 +18,21 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-// GENERATE A RANDOM SHORTURL:
-function generateRandomString() {
+const users = {
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
+// GENERATE A RANDOM SHORTURL //
+const generateRandomString = function() {
 
   const randomChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
   let result = "";
@@ -32,41 +45,56 @@ function generateRandomString() {
 
 };
 
+// CHECK FOR EMAIL IN DATABASE //
+const getUserByEmail = function(email, database) {
+
+  for (let user in database) {
+    if (database[user].email === email) {
+      return database[user].id;
+    }
+  }
+
+};
+
+// CHECK FOR PASSWORD IN DATABASE //
+
+const checkForPassword = function(email, password, users) {
+
+  for (let user in users) {
+    if (users[user].email === email) {
+      return bcrypt.compareSync(password, users[user].password);
+    }
+  }
+
+  return false;
+
+};
+
+
 // ---------- ROUTES ---------- //
 
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
-
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
-
+// SERVER START //
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
+// JSON OBJECT WITH urlDatabase //
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+// URL PAGE INDEX WITH THE URLS INPUTTED // 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies["username"] };
+  let cookie = req.cookies;
+  const templateVars = { urls: urlDatabase, username: req.cookies[cookie.user_id] };
   res.render("urls_index", templateVars);
 });
 
-// keep this above the route definition below
+// CREATE NEW URL //
 app.get("/urls/new", (req, res) => {
-  let username = { username: req.cookies["username"] };
-  res.render("urls_new", username);
-});
-
-app.get("/urls/:shortURL", function(req, res) {
-  let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[req.params.shortURL];
-
-  res.render("urls_show", { longURL: longURL, shortURL: shortURL, username: req.cookies["username"] });
-});
+  let cookie = req.cookies;
+  res.render("urls_new", { user: users[cookie.user_id] });
+}); // keep this above the route definition below
 
 // redirect after form submission
 app.get("/u/:shortURL", function(req, res) {
@@ -74,11 +102,7 @@ app.get("/u/:shortURL", function(req, res) {
   res.redirect(urlDatabase[shortURL]);
 });
 
-
 app.post("/urls", (req, res) => {
-  // console.log(req.body);  // Log the POST request body to the console
-  // res.send("Ok"); 
-
   const generateShortURL = generateRandomString();
   urlDatabase[generateShortURL] = req.body.longURL;
   res.redirect(`/urls/${generateShortURL}`);
@@ -89,30 +113,65 @@ app.post("/urls/:shortURL", (req, res) => {
   res.redirect(`/urls/${short}`);
 });
 
-// deleting urls
+// RUN /urls/new //
+app.get("/urls/:shortURL", function(req, res) {
+  let cookie = req.cookies;
+  let shortURL = req.params.shortURL;
+  let longURL = urlDatabase[req.params.shortURL];
+
+  res.render("urls_show", { longURL: longURL, shortURL: shortURL, user: req.cookies[cookie.user_id] });
+});
+
+// DELETE URLS //
 app.post("/urls/:shortURL/delete", (req, res) => {
   let short = req.params.shortURL;
-  // console.log(short);
   delete urlDatabase[short];
   res.redirect("/urls");
 });
 
-// editing urls
+// EDIT URLS // 
 app.post("/urls/:shortURL/edit", (req, res) => {
   let short = req.params.shortURL;
   urlDatabase[short] = req.body.longURL;
   res.redirect("/urls");
 });
 
-// login feature
+// LOGIN //
+app.get("/login", (req, res) => {
+  let cookie = req.cookies;
+  res.render("login", { user: users[cookie.user_id]});
+})
+
 app.post("/login", function(req, res) {
   res.cookie("username", req.body.username);
   res.redirect("/urls");
   console.log(req.cookies["username"]);
 });
 
-// logout feature
+// LOGOUT //
 app.post("/logout", function(req, res) {
   res.clearCookie("username", req.body.username);
+  res.redirect("/urls");
+});
+
+// REGISTER //
+app.get("/register", (req, res) => {
+  let cookie = req.cookies;
+  res.render("register", { user: user[cookie.user_id] });
+});
+
+app.post("/register", function(req, res) {
+  if (req.body.email === "" || req.body.password === "") {
+    res.status(400).send(`ERROR 400: please enter an email and/or password!`);
+  } else if (getUserByEmail(req.body.email)) {
+    res.status(400).send("ERROR 400: the email you have entered is already in use!")
+  } else {
+    let userID = generateRandomString();
+    users[userID] = {
+      id: userID,
+      email: req.body.email,
+      password: bcrypt.hashSync(req.body.password, 10)
+    }
+  }
   res.redirect("/urls");
 });
