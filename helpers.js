@@ -25,34 +25,10 @@ const getUserByEmail = function(email, database) {
     }
   }
 
-};
-
-// CHECK FOR PASSWORD IN DATABASE //
-const checkForPassword = function(email, password, users) {
-
-  for (let user in users) {
-    if (users[user].email === email) {
-      return bcrypt.compareSync(password, users[user].password);
-    }
-  }
-
-};
-
-// LINK CHECKER (for user) //
-const checkUserLink = function(object, id) {
-
-  let answer = {};
-
-  for (let item in object) {
-    if (object[item].userID === id) {
-      answer[item] = object[item];
-    }
-  }
-
-  return answer;
+  return undefined;
 
 };
 
 // ----------- EXPORT ----------- //
 
-module.exports = { generateRandomString, getUserByEmail, checkForPassword, checkUserLink };
+module.exports = { generateRandomString, getUserByEmail };

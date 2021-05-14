@@ -34,7 +34,21 @@ const users = {
 };
 
 // FUNCTIONS FROM HELPERS.JS IMPLEMENTATION //
-const {generateRandomString, getUserByEmail, checkForPassword, checkUserLink} = require ("./helpers");
+const {generateRandomString, getUserByEmail } = require ("./helpers");
+
+const checkUserLink = function(id) {
+
+  let answer = {};
+
+  for (let item in urlDatabase) {
+    if (urlDatabase[item].userID === id) {
+      answer[item] = urlDatabase[item];
+    }
+  }
+
+  return answer;
+
+};
 
 
 // ---------- ROUTES ---------- //
@@ -50,80 +64,90 @@ app.get("/", (req, res) => {
 
 // URL PAGE INDEX WITH THE URLS INPUTTED //
 app.get("/urls", (req, res) => {
-  let cookie = req.session;
-  let userId = req.session.user_id;
-  let templateVars = { urls: checkUserLink(userId), user: users[cookie.user_id], error: users[userId] ? null : 'Please Login / Register First!' };
+  let cookie = req.session.user_id;
+  let templateVars = { urlDatabase, urls: checkUserLink(cookie), user: users[cookie], error: users[cookie] ? null : 'Please Login / Register First!' };
   res.render("urls_index", templateVars);
 });
 
 // GENERATE NEW SHORT URL //
 app.post("/urls", (req, res) => {
-  let cookie = req.session;
+  let cookie = req.session.user_id;
   const generatedShortURL = generateRandomString();
   urlDatabase[generatedShortURL] = {
     longURL: req.body.longURL,
-    userID: cookie.user_id
+    userID: cookie
   };
-  res.redirect(`/urls/${generatedShortURL}`);
+  res.redirect(`/urls`);
 });
 
 // CREATE NEW URL //
 app.get("/urls/new", (req, res) => {
-  let cookie = req.session;
-  if (!cookie.user_id) {
+  let cookie = req.session.user_id;
+  const templateVars = { user: users[cookie] };
+  if (!cookie) {
     return res.redirect("/login");
   }
-    res.render("urls_new", { user: users[cookie.user_id] });
+    res.render("urls_new", templateVars);
 }); // keep this above the route definition below
 
-// // redirect after form submission
-// app.get("/u/:shortURL", function(req, res) {
-//   let shortURL = req.params.shortURL;
-//   res.redirect(urlDatabase[shortURL].longURL);
-// });
+// redirect after form submission
+app.get("/u/:shortURL", function(req, res) {
+  let shortURL = req.params.shortURL;
+  const url = urlDatabase[shortURL];
+  if (!url === true) {
+    return res.status(404).send(`ERROR 404: Page not found!`);
+  }
+  res.redirect(url.longURL);
+});
 
-// app.post("/urls/:shortURL", (req, res) => {
-//   const short = req.params.shortURL;
-//   res.redirect(`/urls/${short}`);
-// });
+app.post("/urls/:shortURL", (req, res) => {
+  let cookie = req.session.user_id;
+  if (!users[cookie]) {
+    return res.status(404).send(`ERROR 404: Page not found!`);
+  }
+  const short = req.params.shortURL;
+  const longURL = req.body.longURL;
+  urlDatabase[short].longURL = longURL;
+  res.redirect(`/urls`);
+});
 
 // RUN /urls/new //
 app.get("/urls/:shortURL", function(req, res) {
-  let cookie = req.session;
+  let cookie = req.session.user_id;
   let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[req.params.shortURL].longURL;
-  res.render("urls_show", { longURL: longURL, shortURL: shortURL, user: req.cookies[cookie.user_id] });
+  let longURL = urlDatabase[shortURL].longURL;
+  const templateVars = { shortURL: shortURL, longURL: longURL, user: users[cookie] };
+  res.render("urls_show", templateVars);
 });
+
 
 // DELETE URLS //
 app.post("/urls/:shortURL/delete", (req, res) => {
-  let short = req.params.shortURL;
-  let cookie = req.session;
-  let linksOfUser = checkUserLink(urlDatabase, cookie.user_id);
-  
-  if (!linksOfUser[short]) {
-    return res.send("Sorry, you don't have permission to delete this link!");
+  let cookie = req.session.user_id;
+  if (!users[cookie]) {
+    return res.status(191).send(`Sorry, you don't have permission to delete this link!`);
   }
-    delete urlDatabase[short];
-    res.redirect("/urls");
+  const deleteUrl = req.params.shortURL;
+    delete urlDatabase[deleteUrl];
+    res.redirect('/urls');
 });
 
 // EDIT URLS //
 app.post("/urls/:shortURL/edit", (req, res) => {
-  let cookie = req.session;
+  let cookie = req.session.user_id;
   let short = req.params.shortURL;
-  let userObject = checkUserLink(urlDatabase, users[cookie.user_id]);
+  let userObject = checkUserLink(urlDatabase, users[cookie]);
   if (!userObject[short]) {
-    return res.status.send("ERROR 403: You don't have permission to edit this link!");
+    return res.status.send(`ERROR 403: You don't have permission to edit this link!`);
   }
-    urlDatabase[short] = req.body.longURL;
+    urlDatabase[short] = req.body.editedURL;
     res.redirect("/urls");
 });
 
 // LOGIN //
 app.get("/login", (req, res) => {
-  let userId = req.session.user_id;
-  const templateVars = { user: users[userId] };
+  let cookie = req.session.user_id;
+  const templateVars = { user: users[cookie] };
   res.render("login", templateVars);
 });
 
@@ -131,13 +155,16 @@ app.post("/login", function(req, res) {
   let emailForLogin = req.body.email;
   let passForLogin = req.body.password;
   let user = getUserByEmail(emailForLogin, users);
-  let passwordCheck = checkForPassword(emailForLogin, passForLogin, users);
 
   if (!emailForLogin.length || !passForLogin.length) {
     return res.status(403).send(`ERROR 403: The email / password you have entered is invalid!`);
-  } else if (!user) {
+  }
+  
+  if (!user) {
     return res.status(403).send(`ERROR 403: The email / password you have entered doesn't match!`);
-  } else if (!bcrypt.compareSync(passForLogin, user.password)) {
+  }
+  
+  if (!bcrypt.compareSync(passForLogin, user.passForLogin)) {
     return res.status(403).send(`ERROR 403: The email / password you have entered doesn't match!`);
   }
 
@@ -153,16 +180,19 @@ app.post("/logout", function(req, res) {
 
 // REGISTRATION //
 app.get("/register", (req, res) => {
-  let cookie = req.session;
-  res.render("register", { user: users[cookie.user_id] });
+  const templateVars = { user: null };
+  res.render("register", templateVars);
 });
 
 app.post("/register", function(req, res) {
   let emailForLogin = req.body.email;
   let passForLogin = req.body.password;
+
   if (req.body.email === "" || req.body.password === "") {
     return res.status(400).send(`ERROR 400: please enter an email and/or password!`);
-  } else if (getUserByEmail(req.body.email)) {
+  } 
+  
+  if (getUserByEmail(req.body.email)) {
     return res.status(400).send("ERROR 400: the email you have entered is already in use!");
   }
     let userId = generateRandomString();
@@ -171,8 +201,6 @@ app.post("/register", function(req, res) {
       emailForLogin,
       passForLogin: bcrypt.hashSync(passForLogin, 10)
     };
-
-    console.log("User:, user");
 
     users[userId] = user;
     req.session.user_id = userId;
