@@ -59,9 +59,8 @@ app.get("/urls/new", (req, res) => {
   let cookie = req.session;
   if (cookie.user_id) {
     res.render("urls_new", { user: users[cookie.user_id] });
-  } else { // sorry gary
-    res.redirect("/login");
   }
+    res.redirect("/login");
 }); // keep this above the route definition below
 
 // FORM SUBMISSION REDIRECT //
@@ -102,10 +101,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (linksOfUser[short]) {
     delete urlDatabase[short];
     res.redirect("/urls");
-  } else { // i'm sorry gary
-    res.send("Sorry, you don't have permission to delete this link!");
   }
-
+    res.send("Sorry, you don't have permission to delete this link!");
 });
 
 // EDIT URLS //
@@ -116,9 +113,8 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   if (userObject[short]) {
     urlDatabase[short] = req.body.longURL;
     res.redirect("/urls");
-  } else { // i'm so sorry gary
-    res.status.send("ERROR 403: You don't have permission to edit this link!");
   }
+    res.status.send("ERROR 403: You don't have permission to edit this link!");
 });
 
 // LOGIN //
@@ -136,10 +132,9 @@ app.post("/login", function(req, res) {
   if (user && passwordCheck) {
     req.session.user_id = user;
     req.session.save();
-  } else { // i need to get this checked out im sorry gary
-    res.status(403).send(`ERROR 403: The email / password you have entered is invalid!`);
   }
-  res.redirect("/urls");
+    res.status(403).send(`ERROR 403: The email / password you have entered is invalid!`);
+    res.redirect("/urls");
 });
 
 // LOGOUT //
@@ -159,7 +154,7 @@ app.post("/register", function(req, res) {
     res.status(400).send(`ERROR 400: please enter an email and/or password!`);
   } else if (getUserByEmail(req.body.email)) {
     res.status(400).send("ERROR 400: the email you have entered is already in use!");
-  } else {
+  }
     let userID = generateRandomString();
     res.cookie(`email`, req.body.email);
     res.cookie(`password`, req.body.password);
@@ -168,6 +163,5 @@ app.post("/register", function(req, res) {
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 10)
     };
-  }
-  res.redirect("/urls");
+   res.redirect("/urls");
 });
