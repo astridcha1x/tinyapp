@@ -8,19 +8,17 @@ const bcrypt = require("bcrypt");
 
 app.use(bodyParser.urlencoded({extended: true}));
 
+// SET COOKIES, NOW WITH COOKIE-SESSION //
 const cookieSession = require("cookie-session");
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }));
 
-// EJS SET AS THE VIEW ENGINE
+// EJS SET AS THE VIEW ENGINE // 
 app.set("view engine", "ejs");
 
-
 const urlDatabase = {
-  // "b2xVn2": "http://www.lighthouselabs.ca",
-  // "9sm5xK": "http://www.google.com"
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
@@ -29,17 +27,17 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 10)
   },
   "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("dishwasher-funk", 10)
   }
 };
 
 // FUNCTIONS FROM HELPERS.JS IMPLEMENTATION //
-const { generateRandomString, getUserByEmail, checkForPassword, checkUserLink } = require ("./helpers");
+const {generateRandomString, getUserByEmail, checkForPassword, checkUserLink} = require ("./helpers");
 
 
 // ---------- ROUTES ---------- //
@@ -66,7 +64,7 @@ app.get("/urls/new", (req, res) => {
   }
 }); // keep this above the route definition below
 
-// redirect after form submission
+// FORM SUBMISSION REDIRECT //
 app.get("/u/:shortURL", function(req, res) {
   let shortURL = req.params.shortURL;
   res.redirect(urlDatabase[shortURL].longURL);
@@ -146,7 +144,7 @@ app.post("/login", function(req, res) {
 
 // LOGOUT //
 app.post("/logout", function(req, res) {
-  req.session = null; // ?
+  req.session = null;
   res.redirect("/urls");
 });
 
