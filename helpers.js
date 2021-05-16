@@ -1,7 +1,9 @@
 const bcrypt = require("bcrypt");
-const urlDatabase = require("./express_server");
 
 // ----------- FUNCTIONS ----------- //
+
+// URL DATABASE STORAGE //
+const urlDatabase = {};
 
 // GENERATE A RANDOM SHORTURL //
 const generateRandomString = function() {
@@ -47,4 +49,4 @@ const checkUserLink = function(id) {
 
 // ----------- EXPORT ----------- //
 
-module.exports = { generateRandomString, getUserByEmail, checkUserLink };
+module.exports = { generateRandomString, getUserByEmail, checkUserLink, urlDatabase };

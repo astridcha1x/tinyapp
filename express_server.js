@@ -18,9 +18,6 @@ app.use(cookieSession({
 // EJS SET AS THE VIEW ENGINE // 
 app.set("view engine", "ejs");
 
-const urlDatabase = {};
-module.exports = { urlDatabase };
-
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -35,7 +32,7 @@ const users = {
 };
 
 // FUNCTIONS FROM HELPERS.JS IMPLEMENTATION //
-const {generateRandomString, getUserByEmail, checkUserLink } = require ("./helpers");
+const { urlDatabase, generateRandomString, getUserByEmail, checkUserLink } = require ("./helpers");
 
 // ---------- ROUTES ---------- //
 
