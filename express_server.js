@@ -90,9 +90,9 @@ app.post("/urls/:shortURL", (req, res) => {
   if (!users[cookie]) {
     return res.status(404).send(`ERROR 404: Page not found!`);
   }
-  const short = req.params.shortURL;
+  const shortURL = req.params.shortURL;
   const longURL = req.body.longURL;
-  urlDatabase[short].longURL = longURL;
+  urlDatabase[shortURL].longURL = longURL;
   res.redirect(`/urls`);
 });
 
@@ -120,12 +120,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 // EDIT URLS //
 app.post("/urls/:shortURL/edit", (req, res) => {
   let cookie = req.session.user_id;
-  let short = req.params.shortURL;
+  let shortURL = req.params.shortURL;
   let userObject = checkUserLink(urlDatabase, users[cookie]);
-  if (!userObject[short]) {
+  if (!userObject[shortURL]) {
     return res.status.send(`ERROR 403: You don't have permission to edit this link!`);
   }
-    urlDatabase[short] = req.body.editedURL;
+    urlDatabase[shortURL] = req.body.editedURL;
     res.redirect("/urls");
 });
 
