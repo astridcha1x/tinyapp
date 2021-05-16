@@ -17,8 +17,8 @@
           <div style="margin-left: 200px">
             <%} else {%>
               <form class="form-inline" method="POST" action="/logout" style="margin-left: 750px">
-                <a class="nav-item nav-link inline" style="padding: 20px">Hello, <%= user.email %>!</a>
-                <button type="submit" class="btn btn-primary inline">Logout</button>
+                <a class="nav-item nav-link inline" style="padding: 20px">You are logged in as <%= user.emailForLogin %></a>
+                <button type="submit" class="btn btn-outline-secondary inline">Logout</button>
               </form>
           <%}%>              
           </div>
