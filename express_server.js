@@ -19,6 +19,7 @@ app.use(cookieSession({
 app.set("view engine", "ejs");
 
 const urlDatabase = {};
+module.exports = { urlDatabase };
 
 const users = {
   "userRandomID": {

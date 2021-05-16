@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const urlDatabase = require("./express_server");
 
 // ----------- FUNCTIONS ----------- //
 
