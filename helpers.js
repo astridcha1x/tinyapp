@@ -29,6 +29,21 @@ const getUserByEmail = function(email, database) {
 
 };
 
+// CHECK IF LINKS BELONG TO USER //
+const checkUserLink = function(id) {
+
+  let answer = {};
+
+  for (let item in urlDatabase) {
+    if (urlDatabase[item].userID === id) {
+      answer[item] = urlDatabase[item];
+    }
+  }
+
+  return answer;
+
+};
+
 // ----------- EXPORT ----------- //
 
-module.exports = { generateRandomString, getUserByEmail };
+module.exports = { generateRandomString, getUserByEmail, checkUserLink };

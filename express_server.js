@@ -34,22 +34,7 @@ const users = {
 };
 
 // FUNCTIONS FROM HELPERS.JS IMPLEMENTATION //
-const {generateRandomString, getUserByEmail } = require ("./helpers");
-
-const checkUserLink = function(id) {
-
-  let answer = {};
-
-  for (let item in urlDatabase) {
-    if (urlDatabase[item].userID === id) {
-      answer[item] = urlDatabase[item];
-    }
-  }
-
-  return answer;
-
-};
-
+const {generateRandomString, getUserByEmail, checkUserLink } = require ("./helpers");
 
 // ---------- ROUTES ---------- //
 
