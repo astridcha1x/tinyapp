@@ -16,6 +16,7 @@
   <%- include('partials/_header') %>
 
     <main style="margin: 1em;">
+      <% if (user) {%>
       <h3>My URLs</h3>
       <table class="table">
         <thead>
@@ -27,7 +28,8 @@
           </tr>
         </thead>
         <tbody>
-          <% for(let url in urls) { %>
+        <% for(let url in urls) { %>
+          <% if (urls[url].userID === user) { %>          
             <tr>
               <td>
                 <%= url %>
@@ -49,6 +51,15 @@
                 </td>
               </form>
             </tr>
+            <% } %>
+            <% } %>
+            <% } else {%> <!-- if not logged in -->
+              <center>
+                <br>
+                <p>
+            <h3>Welcome to TinyApp! Please <a href="/login">Login</a> or <a href="/register">Register</a> to get started.</h3>
+            <img src="https://yaycupcake.com/a3/images/c/c7/Banri_055_Chibi.png">
+              </center>
             <% } %>
         </tbody>
       </table>

@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
     integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 
-  <title>New URL - TinyApp Example</title>
+  <title>New URL - TinyApp</title>
 </head>
 
 <body>
@@ -17,6 +17,7 @@
   <%- include('partials/_header') %>
 
     <main style="margin: 1em;">
+      <% if (user) {%> 
       <h3>Create TinyURL</h3>
       <form class="form-inline" action="/urls" method="POST">
         <div class="form-group mb-2">
@@ -26,6 +27,14 @@
           <button type="submit" class="btn btn-primary">Submit</button>
         </div>
       </form>
+      <% } else { %>
+        <center>
+          <br>
+          <p>
+            <h3>Please <a href="/login">Login</a> or <a href="/register">Register</a> before making a TinyURL!</h3>
+          </p>
+        </center>
+     <% } %> 
     </main>
     <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"

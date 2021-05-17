@@ -18,6 +18,7 @@ app.use(cookieSession({
 // EJS SET AS THE VIEW ENGINE // 
 app.set("view engine", "ejs");
 
+// USERS DATABASE
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -39,19 +40,19 @@ const { urlDatabase, generateRandomString, getUserByEmail, checkUserLink } = req
 
 // ----- APP.GET ROUTES ----- //
 
-// HOMEPAGE //
+// ROOT URL //
 app.get("/", (req, res) => {
 // if logged in or not:
   if (!req.session.user_id) {
-    return res.redirect('/login')
+    return res.redirect('/login');
   }
-  res.redirect('/urls')
+  res.redirect('/urls');
 });
 
 // URL PAGE INDEX WITH THE URLS INPUTTED //
 app.get("/urls", (req, res) => {
   let cookie = req.session.user_id;
-  let templateVars = { urlDatabase, urls: checkUserLink(cookie), user: users[cookie], error: users[cookie] ? null : 'Please Login / Register First!' };
+  let templateVars = { urlDatabase, urls: checkUserLink(cookie), user: users[cookie] };
   res.render("urls_index", templateVars);
 });
 
@@ -59,9 +60,9 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   let cookie = req.session.user_id;
   const templateVars = { user: users[cookie] };
-  if (!cookie) {
-    return res.redirect("/login");
-  }
+  // if (!cookie) {
+  //   return res.redirect("/login");
+  // }
     res.render("urls_new", templateVars);
 }); // keep this above the route definition below
 
@@ -170,6 +171,7 @@ app.post("/login", function(req, res) {
 // LOGOUT //
 app.post("/logout", function(req, res) {
   req.session = null;
+  res.clearCookie('user_id');
   res.redirect("/urls");
 });
 
