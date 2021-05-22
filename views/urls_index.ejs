@@ -29,7 +29,7 @@
         </thead>
         <tbody>
         <% for(let url in urls) { %>
-          <% if (urls[url].userID === user) { %>          
+          <% if (urls[url].userID === user.userId) { %>          
             <tr>
               <td>
                 <%= url %>

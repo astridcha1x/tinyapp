@@ -18,22 +18,8 @@ app.use(cookieSession({
 // EJS SET AS THE VIEW ENGINE // 
 app.set("view engine", "ejs");
 
-// USERS DATABASE
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  }
-};
-
 // FUNCTIONS FROM HELPERS.JS IMPLEMENTATION //
-const { urlDatabase, generateRandomString, getUserByEmail, checkUserLink } = require ("./helpers");
+const { urlDatabase, users, generateRandomString, getUserByEmail, checkUserLink } = require ("./helpers");
 
 // ---------- ROUTES ---------- //
 
@@ -51,19 +37,20 @@ app.get("/", (req, res) => {
 
 // URL PAGE INDEX WITH THE URLS INPUTTED //
 app.get("/urls", (req, res) => {
-  let cookie = req.session.user_id;
-  let templateVars = { urlDatabase, urls: checkUserLink(cookie), user: users[cookie] };
+  let uId = req.session.user_id;
+  let templateVars = { urlDatabase: urlDatabase, urls: checkUserLink(uId), user: users[uId] };
+  console.log("templateVars.user:", templateVars.user);
   res.render("urls_index", templateVars);
 });
 
 // CREATE NEW URL //
 app.get("/urls/new", (req, res) => {
-  let cookie = req.session.user_id;
-  const templateVars = { user: users[cookie] };
+  let uId = req.session.user_id;
+  const templateVars = { user: users[uId] };
   // if (!cookie) {
   //   return res.redirect("/login");
   // }
-    res.render("urls_new", templateVars);
+  res.render("urls_new", templateVars);
 }); // keep this above the route definition below
 
 // REDIRECT AFTER FORM SUBMISSION //
@@ -103,12 +90,14 @@ app.get("/register", (req, res) => {
 
 // GENERATE NEW SHORT URL //
 app.post("/urls", (req, res) => {
-  let cookie = req.session.user_id;
+  let uId = req.session.user_id;
   const generatedShortURL = generateRandomString();
+  console.log("before: ", urlDatabase);
   urlDatabase[generatedShortURL] = {
     longURL: req.body.longURL,
-    userID: cookie
+    userID: uId
   };
+  console.log("after: ", urlDatabase);
   res.redirect(`/urls`);
 });
 
@@ -151,16 +140,20 @@ app.post("/login", function(req, res) {
   let emailForLogin = req.body.email;
   let passForLogin = req.body.password;
   let user = getUserByEmail(emailForLogin, users);
+  console.log(emailForLogin);
+  console.log(user);
 
   if (!emailForLogin.length || !passForLogin.length) {
     return res.status(403).send(`ERROR 403: The email / password you have entered is invalid!`);
   }
   
   if (!user) {
+    console.log("second if statement");
     return res.status(403).send(`ERROR 403: The email / password you have entered doesn't match!`);
   }
   
   if (!bcrypt.compareSync(passForLogin, user.passForLogin)) {
+    console.log("third if statement");
     return res.status(403).send(`ERROR 403: The email / password you have entered doesn't match!`);
   }
 
@@ -170,9 +163,12 @@ app.post("/login", function(req, res) {
 
 // LOGOUT //
 app.post("/logout", function(req, res) {
+  console.log("before:", users);  
   req.session = null;
   res.clearCookie('user_id');
+  console.log("after:", users);
   res.redirect("/urls");
+  
 });
 
 // REGISTRATION // 

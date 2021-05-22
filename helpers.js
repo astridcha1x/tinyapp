@@ -5,6 +5,20 @@ const bcrypt = require("bcrypt");
 // URL DATABASE STORAGE //
 const urlDatabase = {};
 
+// USER DATABASE STORAGE //
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+};
+
 // GENERATE A RANDOM SHORTURL //
 const generateRandomString = function() {
 
@@ -23,22 +37,23 @@ const generateRandomString = function() {
 const getUserByEmail = function(email, database) {
 
   for (let user in database) {
-    if (database[user].email === email) {
+    if (database[user].emailForLogin === email) {
       return database[user];
     }
   }
 
+  console.log(database);
   return undefined;
 
 };
 
 // CHECK IF LINKS BELONG TO USER //
-const checkUserLink = function(id) {
+const checkUserLink = function(uId) {
 
   let answer = {};
 
   for (let item in urlDatabase) {
-    if (urlDatabase[item].userID === id) {
+    if (urlDatabase[item].userID === uId) {
       answer[item] = urlDatabase[item];
     }
   }
@@ -49,4 +64,4 @@ const checkUserLink = function(id) {
 
 // ----------- EXPORT ----------- //
 
-module.exports = { generateRandomString, getUserByEmail, checkUserLink, urlDatabase };
+module.exports = { generateRandomString, getUserByEmail, checkUserLink, urlDatabase, users };
