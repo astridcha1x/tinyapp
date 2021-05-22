@@ -39,7 +39,6 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   let uId = req.session.user_id;
   let templateVars = { urlDatabase: urlDatabase, urls: checkUserLink(uId), user: users[uId] };
-  console.log("templateVars.user:", templateVars.user);
   res.render("urls_index", templateVars);
 });
 
@@ -47,9 +46,6 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   let uId = req.session.user_id;
   const templateVars = { user: users[uId] };
-  // if (!cookie) {
-  //   return res.redirect("/login");
-  // }
   res.render("urls_new", templateVars);
 }); // keep this above the route definition below
 
@@ -65,11 +61,16 @@ app.get("/u/:shortURL", function(req, res) {
 
 // RUN /urls/new //
 app.get("/urls/:shortURL", function(req, res) {
-  let cookie = req.session.user_id;
+  let uId = req.session.user_id;
   let shortURL = req.params.shortURL;
-  let longURL = urlDatabase[shortURL].longURL;
-  const templateVars = { shortURL: shortURL, longURL: longURL, user: users[cookie] };
-  res.render("urls_show", templateVars);
+  if(urlDatabase[shortURL].userID !== uId) {
+    return res.status(403).send(`ERROR 403: You don't have permission to edit this link!`);
+  }
+  if(!uId) {
+    return res.redirect("/urls");
+  }
+  const templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL, user: users[uId], error: users[uId] ? null : "Please Login or Register to get started!" };
+  res.render("urls_show", templateVars);  
 });
 
 // LOGIN //
@@ -92,12 +93,10 @@ app.get("/register", (req, res) => {
 app.post("/urls", (req, res) => {
   let uId = req.session.user_id;
   const generatedShortURL = generateRandomString();
-  console.log("before: ", urlDatabase);
   urlDatabase[generatedShortURL] = {
     longURL: req.body.longURL,
     userID: uId
   };
-  console.log("after: ", urlDatabase);
   res.redirect(`/urls`);
 });
 
@@ -140,20 +139,16 @@ app.post("/login", function(req, res) {
   let emailForLogin = req.body.email;
   let passForLogin = req.body.password;
   let user = getUserByEmail(emailForLogin, users);
-  console.log(emailForLogin);
-  console.log(user);
 
   if (!emailForLogin.length || !passForLogin.length) {
     return res.status(403).send(`ERROR 403: The email / password you have entered is invalid!`);
   }
   
   if (!user) {
-    console.log("second if statement");
     return res.status(403).send(`ERROR 403: The email / password you have entered doesn't match!`);
   }
   
   if (!bcrypt.compareSync(passForLogin, user.passForLogin)) {
-    console.log("third if statement");
     return res.status(403).send(`ERROR 403: The email / password you have entered doesn't match!`);
   }
 
@@ -163,10 +158,8 @@ app.post("/login", function(req, res) {
 
 // LOGOUT //
 app.post("/logout", function(req, res) {
-  console.log("before:", users);  
   req.session = null;
   res.clearCookie('user_id');
-  console.log("after:", users);
   res.redirect("/urls");
   
 });

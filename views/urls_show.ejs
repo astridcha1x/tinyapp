@@ -12,7 +12,13 @@
 
   <%- include('partials/_header') %>
 
-  <% if (userID === cookie) { %> 
+  <% if (error) { %>
+    <p>
+    <h3><%= error %></h3>
+    </p>
+    <% } %>
+
+  <% if (!error) { %>
   <div class="card text-center">
     <div class="card-header"></div>
     <div class="card-body">
@@ -38,13 +44,13 @@
     </form>
     </main>
 
-    <% } else { %>
+    <!-- <% } else { %>
       <center>
         <br>
         <p>
           <h3>Please <a href="/login">Login</a> or <a href="/register">Register</a> before making a TinyURL!</h3>
         </p>
-      </center>
+      </center> -->
       
   </div>
 <% } %>
