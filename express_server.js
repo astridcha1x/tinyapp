@@ -45,7 +45,7 @@ app.get("/urls", (req, res) => {
 // CREATE NEW URL //
 app.get("/urls/new", (req, res) => {
   let uId = req.session.user_id;
-  const templateVars = { user: users[uId] };
+  const templateVars = { user: users.uId };
   res.render("urls_new", templateVars);
 }); // keep this above the route definition below
 
@@ -75,8 +75,9 @@ app.get("/urls/:shortURL", function(req, res) {
 
 // LOGIN //
 app.get("/login", (req, res) => {
-  let cookie = req.session.user_id;
-  const templateVars = { user: users[cookie] };
+  let uId = req.session.user_id;
+  const templateVars = { user: users[uId] };
+  console.log("templateVars: ", templateVars)
   res.render("login", templateVars);
 });
 
@@ -101,8 +102,8 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  let cookie = req.session.user_id;
-  if (!users[cookie]) {
+  let uId = req.session.user_id;
+  if (!users[uId]) {
     return res.status(404).send(`ERROR 404: Page not found!`);
   }
   const shortURL = req.params.shortURL;
@@ -113,8 +114,8 @@ app.post("/urls/:shortURL", (req, res) => {
 
 // DELETE URLS //
 app.post("/urls/:shortURL/delete", (req, res) => {
-  let cookie = req.session.user_id;
-  if (!users[cookie]) {
+  let uId = req.session.user_id;
+  if (!users[uId]) {
     return res.status(191).send(`Sorry, you don't have permission to delete this link!`);
   }
   const deleteUrl = req.params.shortURL;
@@ -124,9 +125,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 // EDIT URLS //
 app.post("/urls/:shortURL/edit", (req, res) => {
-  let cookie = req.session.user_id;
+  let uId = req.session.user_id;
   let shortURL = req.params.shortURL;
-  let userObject = checkUserLink(urlDatabase, users[cookie]);
+  let userObject = checkUserLink(urlDatabase, users[uId]);
   if (!userObject[shortURL]) {
     return res.status.send(`ERROR 403: You don't have permission to edit this link!`);
   }
@@ -136,6 +137,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 
 // LOGIN // 
 app.post("/login", function(req, res) {
+  let uId = req.session.user_id;
   let emailForLogin = req.body.email;
   let passForLogin = req.body.password;
   let user = getUserByEmail(emailForLogin, users);
@@ -152,7 +154,7 @@ app.post("/login", function(req, res) {
     return res.status(403).send(`ERROR 403: The email / password you have entered doesn't match!`);
   }
 
-  req.session.user_id = user.id;
+  uId = user.userId;
   res.redirect("/urls");
 });
 
