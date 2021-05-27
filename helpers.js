@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt");
 const urlDatabase = {};
 
 // USER DATABASE STORAGE //
-const users = {
+let users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
@@ -33,7 +33,7 @@ const generateRandomString = function() {
 
 };
 
-// CHECK FOR EMAIL IN DATABASE //
+// // CHECK FOR EMAIL IN DATABASE //
 const getUserByEmail = function(email, database) {
 
   for (let user in database) {
@@ -41,8 +41,7 @@ const getUserByEmail = function(email, database) {
       return database[user];
     }
   }
-
-  console.log(database);
+  
   return undefined;
 
 };
